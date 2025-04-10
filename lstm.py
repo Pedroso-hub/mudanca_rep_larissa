@@ -5,12 +5,10 @@ import sys
 sys.path.append('..') 
 import argparse
 import numpy as np
-from keras.models import Sequential
-from sklearn.model_selection import train_test_split
-from keras.layers import LSTM, Input, Concatenate, Average, Dense, Dropout, MaxPooling1D, BatchNormalization, MaxPooling2D
+from keras.layers import LSTM, Input, Concatenate, Average, Dense, Dropout, BatchNormalization
 from keras.models import Model
 from keras.optimizers import Adam, SGD, RMSprop
-from keras.metrics import MeanSquaredError, RootMeanSquaredError
+from keras.metrics import MeanSquaredError
 from keras.callbacks import CSVLogger
 import pandas as pd
 from compute_results import ccc
@@ -40,111 +38,6 @@ def load_data(dir:str, dimen:int, use_pca: bool):
 
     return X_train, y_train, X_test, y_test, X_dev, y_dev
 
-def train_model(X_train, y_train, X_val, y_val, X_test, y_test, args):
-    # print(shape)
-    model = Sequential()
-    # 1, 136
-    # print(args.batch_size, shape)
-    
-    # model.add(Embedding(input_dim=136, output_dim=128))
-    # print(args.batch_size, shape)
-    model.add(Input(shape=(X_train.shape[1],1), batch_size=args.batch_size))
-    model.add(BatchNormalization())
-    # model.add(Reshape((1, shape)))
-    model.add(LSTM(args.units, return_sequences=True, activation=args.activation))
-    # model.add(LSTM(256, return_sequences=True))
-    model.add(LSTM(args.units, return_sequences=False))
-    model.add(Dense(64))
-    model.add(Dropout(args.dropout))
-    model.add(Dense(args.dimen, activation=args.activation_output))
-    model.build()
-    earlystop = EarlyStopping(monitor='val_loss', mode='min', patience=30, restore_best_weights=True)
-
-    if args.optimizer == 'sgd':
-        opt = SGD(learning_rate=args.learning_rate)
-    elif args.optimizer == 'rmsprop':
-        opt = RMSprop(learning_rate=args.learning_rate)
-    else:
-        opt = Adam(learning_rate=args.learning_rate)
-
-    if args.loss == "ccc":
-        model.compile(loss=CCCL, optimizer=opt, metrics=[RootMeanSquaredError()])
-    else:
-        model.compile(loss=args.loss, optimizer=opt, metrics=[MeanSquaredError()])
-
-    model.summary()
-    # model.fit(train_data, validation_data=valid_data, epochs=8, batch_size=10)
-    file = "keras-un_" + str(args.units) + "-drop_" + str(args.dropout) + "-lr_" + str(args.learning_rate) + "-opt_" + args.optimizer + "-bat_" + str(args.batch_size) + "-epo_" + str(args.epochs) + "-loss_" + args.loss + "-act_" + args.activation + "-act_out_" + args.activation_output
-
-    csv_logger = CSVLogger('./result/' + args.emb_model + '/' + file + '.csv')
-    # X_train, y_train, X_val, y_val
-    model.fit(X_train, y_train, 
-              validation_data=(X_val, y_val), 
-              validation_batch_size = args.batch_size, 
-              epochs=args.epochs, 
-              batch_size=args.batch_size,
-              callbacks=[earlystop])
-    
-    if args.save == 'yes':
-        model.save('./model/'+args.model_name + '.h5')
-    else:
-        prediction = model.predict(X_test, batch_size=args.batch_size)
-        pred_list = []
-        gold_list = []
-        if args.dimen == 1:
-            for item in prediction:
-                pred_list.append({'v': item[0]})
-            # np.savetxt('prediction.csv',prediction, delimiter=',')
-            df_pred = pd.DataFrame(pred_list, columns=['v'])
-
-            for item in y_test:
-                gold_list.append({'v': item[0]})
-
-            df_gold = pd.DataFrame(gold_list, columns=['v'])
-            result = {
-                'ccc_v': round(ccc(df_gold['v'], df_pred['v']), 4),
-                'mse_v': round(mean_squared_error(df_gold['v'], df_pred['v']), 4),
-                }
-            
-        elif args.dimen == 2:
-            for item in prediction:
-                pred_list.append({'a': item[0], 'd': item[1]})
-            # np.savetxt('prediction.csv',prediction, delimiter=',')
-            df_pred = pd.DataFrame(pred_list, columns=['a', 'd'])
-
-            for item in y_test:
-                gold_list.append({'a': item[0], 'd':item[1] })
-
-            df_gold = pd.DataFrame(gold_list, columns=['a', 'd'])
-            result = {
-                'ccc_a': round(ccc(df_gold['a'], df_pred['a']), 4),
-                'ccc_d': round(ccc(df_gold['d'], df_pred['d']), 4),
-                'mse_a': round(mean_squared_error(df_gold['a'], df_pred['a']), 4),
-                'mse_d': round(mean_squared_error(df_gold['d'], df_pred['d']), 4),
-                }
-        else:
-            for item in prediction:
-                pred_list.append({'v': item[0], 'a': item[1], 'd':item[2] })
-            # np.savetxt('prediction.csv',prediction, delimiter=',')
-            df_pred = pd.DataFrame(pred_list, columns=['v', 'a', 'd'])
-
-            for item in y_test:
-                gold_list.append({'v': item[0], 'a': item[1], 'd':item[2] })
-
-            df_gold = pd.DataFrame(gold_list, columns=['v', 'a', 'd'])
-            result = {
-                'ccc_v': round(ccc(df_gold['v'], df_pred['v']), 4),
-                'ccc_a': round(ccc(df_gold['a'], df_pred['a']), 4),
-                'ccc_d': round(ccc(df_gold['d'], df_pred['d']), 4),
-                'mse_v': round(mean_squared_error(df_gold['v'], df_pred['v']), 4),
-                'mse_a': round(mean_squared_error(df_gold['a'], df_pred['a']), 4),
-                'mse_d': round(mean_squared_error(df_gold['d'], df_pred['d']), 4),
-            }
-        
-        print(result)
-        df_pred.to_csv('./result_harpy/prediction_final/'+ str(args.dimen) + '__' + args.model_name + '_pred_sa.csv')
-        df_result = pd.DataFrame.from_dict([result])
-        df_result.to_csv('./result_harpy/prediction_final/'+ str(args.dimen) + '__' + args.model_name + '_sa.csv')
 
 def train_model_functional(X_train_text, X_train_audio, y_train, X_dev_text, X_dev_audio, 
                            y_dev, X_test_text, X_test_audio, y_test, args):
@@ -179,10 +72,7 @@ def train_model_functional(X_train_text, X_train_audio, y_train, X_dev_text, X_d
     else:
         opt = Adam(learning_rate=args.learning_rate)
 
-    if args.loss == "ccc":
-        model.compile(loss=CCCL, optimizer=opt, metrics=[RootMeanSquaredError()])
-    else:
-        model.compile(loss=args.loss, optimizer=opt, metrics=[MeanSquaredError()])
+    model.compile(loss=args.loss, optimizer=opt, metrics=[MeanSquaredError()])
 
     model.summary()
     # model.fit(train_data, validation_data=valid_data, epochs=8, batch_size=10)
@@ -205,55 +95,24 @@ def train_model_functional(X_train_text, X_train_audio, y_train, X_dev_text, X_d
         print('time: ', round((time.time() - start_time),4))
         pred_list = []
         gold_list = []
-        if args.dimen == 1:
-            for item in prediction:
-                pred_list.append({'v': item[0]})
-            # np.savetxt('prediction.csv',prediction, delimiter=',')
-            df_pred = pd.DataFrame(pred_list, columns=['v'])
+       
+        for item in prediction:
+            pred_list.append({'v': item[0], 'a': item[1], 'd':item[2] })
+        # np.savetxt('prediction.csv',prediction, delimiter=',')
+        df_pred = pd.DataFrame(pred_list, columns=['v', 'a', 'd'])
 
-            for item in y_test:
-                gold_list.append({'v': item[0]})
+        for item in y_test:
+            gold_list.append({'v': item[0], 'a': item[1], 'd':item[2] })
 
-            df_gold = pd.DataFrame(gold_list, columns=['v'])
-            result = {
-                'ccc_v': round(ccc(df_gold['v'], df_pred['v']), 4),
-                'mse_v': round(mean_squared_error(df_gold['v'], df_pred['v']), 4),
-                }
-            
-        elif args.dimen == 2:
-            for item in prediction:
-                pred_list.append({'a': item[0], 'd': item[1]})
-            # np.savetxt('prediction.csv',prediction, delimiter=',')
-            df_pred = pd.DataFrame(pred_list, columns=['a', 'd'])
-
-            for item in y_test:
-                gold_list.append({'a': item[0], 'd':item[1] })
-
-            df_gold = pd.DataFrame(gold_list, columns=['a', 'd'])
-            result = {
-                'ccc_a': round(ccc(df_gold['a'], df_pred['a']), 4),
-                'ccc_d': round(ccc(df_gold['d'], df_pred['d']), 4),
-                'mse_a': round(mean_squared_error(df_gold['a'], df_pred['a']), 4),
-                'mse_d': round(mean_squared_error(df_gold['d'], df_pred['d']), 4),
-                }
-        else:
-            for item in prediction:
-                pred_list.append({'v': item[0], 'a': item[1], 'd':item[2] })
-            # np.savetxt('prediction.csv',prediction, delimiter=',')
-            df_pred = pd.DataFrame(pred_list, columns=['v', 'a', 'd'])
-
-            for item in y_test:
-                gold_list.append({'v': item[0], 'a': item[1], 'd':item[2] })
-
-            df_gold = pd.DataFrame(gold_list, columns=['v', 'a', 'd'])
-            result = {
-                'ccc_v': round(ccc(df_gold['v'], df_pred['v']), 4),
-                'ccc_a': round(ccc(df_gold['a'], df_pred['a']), 4),
-                'ccc_d': round(ccc(df_gold['d'], df_pred['d']), 4),
-                'mse_v': round(mean_squared_error(df_gold['v'], df_pred['v']), 4),
-                'mse_a': round(mean_squared_error(df_gold['a'], df_pred['a']), 4),
-                'mse_d': round(mean_squared_error(df_gold['d'], df_pred['d']), 4),
-            }
+        df_gold = pd.DataFrame(gold_list, columns=['v', 'a', 'd'])
+        result = {
+            'ccc_v': round(ccc(df_gold['v'], df_pred['v']), 4),
+            'ccc_a': round(ccc(df_gold['a'], df_pred['a']), 4),
+            'ccc_d': round(ccc(df_gold['d'], df_pred['d']), 4),
+            'mse_v': round(mean_squared_error(df_gold['v'], df_pred['v']), 4),
+            'mse_a': round(mean_squared_error(df_gold['a'], df_pred['a']), 4),
+            'mse_d': round(mean_squared_error(df_gold['d'], df_pred['d']), 4),
+        }
         
         print(result)
         
@@ -286,17 +145,14 @@ if __name__ == "__main__":
     parser.add_argument("-dimen", type=int, help="Number of dimensions")
     parser.add_argument("-fusion", type=str, help="Embedding fusion type")
     args = parser.parse_args()
-    if not args.dir_data_text:
-        X_train, y_train, X_test, y_test, X_dev, y_dev = load_data(args.dir_data, args.dimen, False)
-        train_model(X_train, y_train, X_dev, y_dev, X_test, y_test, args)
-    else:
-        X_train_audio, y_train_audio, X_test_audio, y_test_audio, X_dev_audio, y_dev_audio = load_data(args.dir_data, args.dimen, False)
+   
+    X_train_audio, y_train_audio, X_test_audio, y_test_audio, X_dev_audio, y_dev_audio = load_data(args.dir_data, args.dimen, False)
 
-        X_train_text, y_train_text, X_test_text, y_test_text, X_dev_text, y_dev_text = load_data(args.dir_data_text, args.dimen, True)
-        y_train = y_train_audio
-        y_test = y_test_audio
-        y_dev = y_dev_audio
+    X_train_text, y_train_text, X_test_text, y_test_text, X_dev_text, y_dev_text = load_data(args.dir_data_text, args.dimen, True)
+    y_train = y_train_audio
+    y_test = y_test_audio
+    y_dev = y_dev_audio
 
-        train_model_functional(X_train_text, X_train_audio, y_train, X_dev_text, X_dev_audio, 
-                               y_dev, X_test_text, X_test_audio, y_test, args)
+    train_model_functional(X_train_text, X_train_audio, y_train, X_dev_text, X_dev_audio, 
+                            y_dev, X_test_text, X_test_audio, y_test, args)
     # 
