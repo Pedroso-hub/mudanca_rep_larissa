@@ -70,8 +70,8 @@ def create_dataset(embedding:str):
         # trill
         # 
         for index, embd in enumerate(X):
-            # X_avg[index] = np.average(embd, axis=0)
-            X_avg[index] = embd.flatten()
+            X_avg[index] = np.average(embd, axis=0)
+            # X_avg[index] = embd.flatten()
 
         print(group_name)
         file_name_y = args.path + embedding + '/y_' + group_name
