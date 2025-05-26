@@ -14,6 +14,8 @@ import time
 # from essentia.standard import TensorflowPredict2D
 import os 
 from join import pad_or_trim
+print("importou o join")
+os.environ['TFHUB_CACHE_DIR'] = 'C:\\cache_tensor'
 
 # Load the module and run inference. TRILL
 def generate_embedding_TRILL(audio:str):
@@ -41,10 +43,11 @@ def generate_embedding_VGGISH(audio:str):
     return embeddings.numpy()
 
 def create_dataset(embedding:str):
-    dataset_dir = '../../datasets/IEMOCAP_full_release/'
-    df_iemocap = pd.read_csv('../../datasets/df_iemocap_eval_full_splited.csv')
+    print("entrou na create_dataset")
+    oi = os.path.normpath(os.getcwd() + os.sep + os.pardir+os.sep + os.pardir+os.sep + os.pardir)
+    dataset_dir = oi+'\\datasets\\IEMOCAP_full_release\\'
+    df_iemocap = pd.read_csv(oi+'\\datasets\\df_iemocap_eval_full_splited.csv')
     df_group2 = df_iemocap.groupby(['split'])
-    
     for group_name, df_group in df_group2:
         X = []
         golden_stand = []
@@ -54,7 +57,8 @@ def create_dataset(embedding:str):
 
         for index, row in df_group.iterrows():
             golden_stand.append([row['val'], row['act'], row['dom']])
-            wav_file = dataset_dir + row['dir'] + '/' + row['wav_file'] + '.wav'
+
+            wav_file = dataset_dir + row['dir'].replace('/', '\\') + '\\' + row['wav_file'] + '.wav'
                 # (returns signal as a numpy array)
             if embedding == 'trill':
                 em = generate_embedding_TRILL(wav_file)
@@ -66,7 +70,7 @@ def create_dataset(embedding:str):
         if embedding == 'trill':
             X_avg = np.zeros((data_len, 2048))
         else:
-            X_avg = np.zeros((data_len, 384))
+            X_avg = np.zeros((data_len, 128))
         # trill
         # 
         for index, embd in enumerate(X):
@@ -74,17 +78,18 @@ def create_dataset(embedding:str):
             # X_avg[index] = embd.flatten()
 
         print(group_name)
-        file_name_y = args.path + embedding + '/y_' + group_name
-        file_name_x = args.path + embedding + '/x_' + group_name
+        file_name_y = args.path + embedding + '\\y_' + group_name[0]
+        file_name_x = args.path + embedding + '\\x_' + group_name[0]
         np.save(file_name_y, np.array(golden_stand))
         np.save(file_name_x, X_avg)
         print('time: ', round((time.time() - start_time),4),)
-        with open(args.path + embedding + '/' + group_name + '_time.txt', 'w') as f:
+        with open(args.path + embedding + '\\' + group_name[0] + '_time.txt', 'w') as f:
             f.write(str(round((time.time() - start_time),4)))
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     model = hub.load('https://tfhub.dev/google/vggish/1')
+    print("carregou o modelo")
     # parser.add_argument("dataframe", type=str, help="Path to dataframe containing gold standard annotation.")
     parser.add_argument("-model", type=str, help="Embedding model name.")
     parser.add_argument("-path", type=str, help="Dir path to save data")

@@ -15,8 +15,10 @@ logging.getLogger().setLevel(logging.ERROR)
 
 def create_dataset(embedding:str):
     model = SentenceTransformer(embedding)
-    dataset_dir = '../../../datasets/IEMOCAP_full_release/'
-    df_iemocap = pd.read_csv('../../../datasets/df_iemocap_eval_full_splited.csv')
+    print("entrou na create_dataset")
+    oi = os.path.normpath(os.getcwd() + os.sep + os.pardir+os.sep + os.pardir+os.sep + os.pardir)
+    dataset_dir = oi+'\\datasets\\IEMOCAP_full_release\\'
+    df_iemocap = pd.read_csv(oi+'\\datasets\\df_iemocap_eval_full_splited.csv')
 
     df_group2 = df_iemocap.groupby(['split'])
     
