@@ -27,7 +27,7 @@ all_algorithms = [
     PCA(n_components=n_components),
 ]
 
-embeddings_path = '../data_iemocap_sa/paraphrase-MiniLM-L3-v2/'
+embeddings_path = '..\\data_iemocap\\paraphrase-MiniLM-L3-v2\\'
 
 # add to x_Development.npy, x_Test.npy, x_Train.npy
 x_Development = np.load(embeddings_path + "x_Development.npy")

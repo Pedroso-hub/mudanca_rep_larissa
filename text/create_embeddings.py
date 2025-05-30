@@ -11,12 +11,12 @@ logging.getLogger().setLevel(logging.ERROR)
 #   'mpnet': 'sentence-transformers/all-mpnet-base-v2',
 #                     'minilml3': 'sentence-transformers/paraphrase-MiniLM-L3-v2',
 #                     'minilml12': 'sentence-transformers/all-MiniLM-L12-v2'
-
+print("importou")
 
 def create_dataset(embedding:str):
     model = SentenceTransformer(embedding)
     print("entrou na create_dataset")
-    oi = os.path.normpath(os.getcwd() + os.sep + os.pardir+os.sep + os.pardir+os.sep + os.pardir)
+    oi = os.path.normpath(os.getcwd() + os.sep + os.pardir)
     dataset_dir = oi+'\\datasets\\IEMOCAP_full_release\\'
     df_iemocap = pd.read_csv(oi+'\\datasets\\df_iemocap_eval_full_splited.csv')
 
@@ -33,7 +33,7 @@ def create_dataset(embedding:str):
         for index, row in df_group.iterrows():
             
             path = row['dir'].split("/")
-            full_path = dataset_dir + path[0] + '/dialog/transcriptions/' + path[-1] + '.txt'
+            full_path = dataset_dir + path[0] + '\\dialog\\transcriptions\\' + path[-1] + '.txt'
             golden_stand.append([row['val'], row['act'], row['dom']])
             with open(full_path) as f:
                 contents = f.readlines()
@@ -45,11 +45,11 @@ def create_dataset(embedding:str):
                         # print(embeddings.shape)
                         references.append(embeddings)
 
-        print('time: ', round((time.time() - start_time),4), "group ", group_name, 'embedding', embedding)
-        with open('../data_iemocap_sa/' + embedding + '/' + group_name + '_time.txt', 'w') as f:
+        print('time: ', round((time.time() - start_time),4), "group ", group_name[0], 'embedding', embedding)
+        with open('..\\data_iemocap\\' + embedding + '\\' + group_name[0] + '_time.txt', 'w') as f:
             f.write(str(round((time.time() - start_time),4)))
-        file_name_y = '../data_iemocap_sa/' + embedding + '/y_' + group_name
-        file_name_x = '../data_iemocap_sa/' + embedding + '/x_' + group_name
+        file_name_y = '..\\data_iemocap\\' + embedding + '\\y_' + group_name[0]
+        file_name_x = '..\\data_iemocap\\' + embedding + '\\x_' + group_name[0]
         np.save(file_name_y, np.array(golden_stand))
         np.save(file_name_x, np.array(references))
 
@@ -68,7 +68,7 @@ if __name__ == "__main__":
 
     model = 'paraphrase-MiniLM-L3-v2'
 
-    if not os.path.exists('../data_iemocap/paraphrase-MiniLM-L3-v2'): 
-        os.makedirs('../data_iemocap/paraphrase-MiniLM-L3-v2') 
+    if not os.path.exists('..\\data_iemocap\\paraphrase-MiniLM-L3-v2'): 
+        os.makedirs('..\\data_iemocap\\paraphrase-MiniLM-L3-v2') 
     create_dataset(model)
 

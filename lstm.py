@@ -51,7 +51,7 @@ def train_model_functional(X_train_text, X_train_audio, y_train, X_dev_text, X_d
     elif args.fusion == 'average':
         embeddings = Average()([text_input, audio_input])
 
-    normalization = BatchNormalization()(embeddings)
+    normalization = BatchNormalization(embeddings)
     
     lstm_1 = LSTM(args.units, return_sequences=True, activation=args.activation)(normalization)
     lstm_2 = LSTM(256, return_sequences=False)(lstm_1)
@@ -78,7 +78,7 @@ def train_model_functional(X_train_text, X_train_audio, y_train, X_dev_text, X_d
     # model.fit(train_data, validation_data=valid_data, epochs=8, batch_size=10)
     file = "keras-un_" + str(args.units) + "-drop_" + str(args.dropout) + "-lr_" + str(args.learning_rate) + "-opt_" + args.optimizer + "-bat_" + str(args.batch_size) + "-epo_" + str(args.epochs) + "-loss_" + args.loss + "-act_" + args.activation + "-act_out_" + args.activation_output
 
-    csv_logger = CSVLogger('./result/' + args.emb_model + '/' + file + '.csv')
+    csv_logger = CSVLogger('.\\result\\' + args.emb_model + '\\' + file + '.csv')
     # X_train, y_train, X_val, y_val
     model.fit([X_train_text, X_train_audio], y_train, 
               validation_data=([X_dev_text, X_dev_audio], y_dev), 
@@ -88,7 +88,7 @@ def train_model_functional(X_train_text, X_train_audio, y_train, X_dev_text, X_d
               callbacks=[csv_logger, earlystop])
     
     if args.save == 'yes':
-        model.save('./model/'+args.model_name + '.h5')
+        model.save('.\\model\\'+args.model_name + '.h5')
     else:
         start_time = time.time()
         prediction = model.predict([X_test_text, X_test_audio], batch_size=args.batch_size)
@@ -116,9 +116,9 @@ def train_model_functional(X_train_text, X_train_audio, y_train, X_dev_text, X_d
         
         print(result)
         
-        df_pred.to_csv('./result_harpy/prediction/'+ str(args.dimen) + '__' + args.model_name + '_pred.csv')
+        df_pred.to_csv('.\\result_harpy\\prediction\\'+ str(args.dimen) + '__' + args.model_name + '_pred.csv')
         df_result = pd.DataFrame.from_dict([result])
-        df_result.to_csv('./result_harpy/prediction/'+ str(args.dimen) + '__' + args.model_name + '.csv')
+        df_result.to_csv('.\\result_harpy\\prediction\\'+ str(args.dimen) + '__' + args.model_name + '.csv')
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
