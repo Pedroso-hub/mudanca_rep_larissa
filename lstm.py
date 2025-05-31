@@ -51,7 +51,7 @@ def train_model_functional(X_train_text, X_train_audio, y_train, X_dev_text, X_d
     elif args.fusion == 'average':
         embeddings = Average()([text_input, audio_input])
 
-    normalization = BatchNormalization(embeddings)
+    normalization = BatchNormalization()(embeddings)
     
     lstm_1 = LSTM(args.units, return_sequences=True, activation=args.activation)(normalization)
     lstm_2 = LSTM(256, return_sequences=False)(lstm_1)
@@ -78,7 +78,7 @@ def train_model_functional(X_train_text, X_train_audio, y_train, X_dev_text, X_d
     # model.fit(train_data, validation_data=valid_data, epochs=8, batch_size=10)
     file = "keras-un_" + str(args.units) + "-drop_" + str(args.dropout) + "-lr_" + str(args.learning_rate) + "-opt_" + args.optimizer + "-bat_" + str(args.batch_size) + "-epo_" + str(args.epochs) + "-loss_" + args.loss + "-act_" + args.activation + "-act_out_" + args.activation_output
 
-    csv_logger = CSVLogger('.\\result\\' + args.emb_model + '\\' + file + '.csv')
+    csv_logger = CSVLogger('\\result\\' + args.emb_model + '\\' + file + '.csv')
     # X_train, y_train, X_val, y_val
     model.fit([X_train_text, X_train_audio], y_train, 
               validation_data=([X_dev_text, X_dev_audio], y_dev), 
@@ -144,6 +144,7 @@ if __name__ == "__main__":
     parser.add_argument("-dir_data_text", type=str, help="Directory with np data")
     parser.add_argument("-dimen", type=int, help="Number of dimensions")
     parser.add_argument("-fusion", type=str, help="Embedding fusion type")
+
     args = parser.parse_args()
    
     X_train_audio, y_train_audio, X_test_audio, y_test_audio, X_dev_audio, y_dev_audio = load_data(args.dir_data, args.dimen, False)
