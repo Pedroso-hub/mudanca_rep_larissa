@@ -1,0 +1,12 @@
+esses foram os args
+python lstm.py -units 128 -dropout 0.25 -learning_rate 0.001 -optimizer 'adam' -batch_size 64 -epochs 50 -activation 'tanh' -activation_output 'tanh' -loss 'mse' -dir_data 'eval\data_iemocap_final\vggish\' -dir_data_text G:\Coisas_da_Facul\pratica_em_pesquisa_2025\data_iemocap\paraphrase-MiniLM-L3-v2\resized_PCA\ -emb_model='vggish' -fusion average -save 'no' -model_name 'vggish' -dimen 3
+
+
+
+
+esse foi o final do output
+Epoch 43/50
+94/94 ━━━━━━━━━━━━━━━━━━━━ 41s 437ms/step - loss: 0.0972 - mean_squared_error: 0.0972 - val_loss: 0.1347 - val_mean_squared_error: 0.1347
+32/32 ━━━━━━━━━━━━━━━━━━━━ 6s 169ms/step 
+time:  5.8012
+{'ccc_v': 0.0705, 'ccc_a': 0.4027, 'ccc_d': 0.4021, 'mse_v': 0.202, 'mse_a': 0.0898, 'mse_d': 0.0901}

@@ -78,7 +78,7 @@ def train_model_functional(X_train_text, X_train_audio, y_train, X_dev_text, X_d
     # model.fit(train_data, validation_data=valid_data, epochs=8, batch_size=10)
     file = "keras-un_" + str(args.units) + "-drop_" + str(args.dropout) + "-lr_" + str(args.learning_rate) + "-opt_" + args.optimizer + "-bat_" + str(args.batch_size) + "-epo_" + str(args.epochs) + "-loss_" + args.loss + "-act_" + args.activation + "-act_out_" + args.activation_output
 
-    csv_logger = CSVLogger('\\result\\' + args.emb_model + '\\' + file + '.csv')
+    csv_logger = CSVLogger('result\\' + args.emb_model + '\\' + file + '.csv')
     # X_train, y_train, X_val, y_val
     model.fit([X_train_text, X_train_audio], y_train, 
               validation_data=([X_dev_text, X_dev_audio], y_dev), 
