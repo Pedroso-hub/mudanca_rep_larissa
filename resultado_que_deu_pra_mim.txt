@@ -13,3 +13,10 @@ time:  5.8012
 
 
 tirando o early stop ficou pior
+
+
+
+com esses args consegui isso
+python lstm.py -units 128 -dropout 0.25 -learning_rate 0.001 -optimizer 'adam' -batch_size 64 -epochs 50 -activation 'tanh' -activation_output 'tanh' -loss 'mse' -dir_data 'eval\data_iemocap_final\vggish\' -dir_data_text G:\Coisas_da_Facul\pratica_em_pesquisa_2025\data_iemocap\paraphrase-MiniLM-L3-v2\resized_PCA\ -emb_model='vggish' -fusion concatenate -save 'no' -model_name 'vggish' -dimen 3
+{'ccc_v': 0.1188, 'ccc_a': 0.5217, 'ccc_d': 0.5214, 'mse_v': 0.2027, 'mse_a': 0.0817, 'mse_d': 0.0813}
+
