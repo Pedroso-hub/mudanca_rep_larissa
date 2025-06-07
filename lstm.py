@@ -63,7 +63,7 @@ def train_model_functional(X_train_text, X_train_audio, y_train, X_dev_text, X_d
 
     model = Model(inputs=[text_input, audio_input], outputs=output)
 
-    #earlystop = EarlyStopping(monitor='val_loss', mode='min', patience=20, restore_best_weights=True)
+    earlystop = EarlyStopping(monitor='val_loss', mode='min', patience=20, restore_best_weights=True)
 
     if args.optimizer == 'sgd':
         opt = SGD(learning_rate=args.learning_rate)
@@ -85,7 +85,7 @@ def train_model_functional(X_train_text, X_train_audio, y_train, X_dev_text, X_d
               validation_batch_size = args.batch_size, 
               epochs=args.epochs, 
               batch_size=args.batch_size,
-              callbacks=[csv_logger])
+              callbacks=[csv_logger, earlystop])
     
     if args.save == 'yes':
         model.save('.\\model\\'+args.model_name + '.h5')

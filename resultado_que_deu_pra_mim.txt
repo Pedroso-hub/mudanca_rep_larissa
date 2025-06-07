@@ -10,3 +10,6 @@ Epoch 43/50
 32/32 ━━━━━━━━━━━━━━━━━━━━ 6s 169ms/step 
 time:  5.8012
 {'ccc_v': 0.0705, 'ccc_a': 0.4027, 'ccc_d': 0.4021, 'mse_v': 0.202, 'mse_a': 0.0898, 'mse_d': 0.0901}
+
+
+tirando o early stop ficou pior
