@@ -66,9 +66,9 @@ if __name__ == "__main__":
     #     os.makedirs('../data_iemocap_sa/'+ model) 
     # create_dataset(model)
 
-    model = 'paraphrase-MiniLM-L3-v2'
+    model = 'qxakshat/all-MiniLM-L6-v2-128dim'
 
-    if not os.path.exists('..\\data_iemocap\\paraphrase-MiniLM-L3-v2'): 
-        os.makedirs('..\\data_iemocap\\paraphrase-MiniLM-L3-v2') 
+    if not os.path.exists('..\\data_iemocap\\qxakshat/all-MiniLM-L6-v2-128dim'): 
+        os.makedirs('..\\data_iemocap\\qxakshat/all-MiniLM-L6-v2-128dim') 
     create_dataset(model)
 

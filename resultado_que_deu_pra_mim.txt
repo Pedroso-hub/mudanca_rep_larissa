@@ -20,3 +20,12 @@ com esses args consegui isso
 python lstm.py -units 128 -dropout 0.25 -learning_rate 0.001 -optimizer 'adam' -batch_size 64 -epochs 50 -activation 'tanh' -activation_output 'tanh' -loss 'mse' -dir_data 'eval\data_iemocap_final\vggish\' -dir_data_text G:\Coisas_da_Facul\pratica_em_pesquisa_2025\data_iemocap\paraphrase-MiniLM-L3-v2\resized_PCA\ -emb_model='vggish' -fusion concatenate -save 'no' -model_name 'vggish' -dimen 3
 {'ccc_v': 0.1188, 'ccc_a': 0.5217, 'ccc_d': 0.5214, 'mse_v': 0.2027, 'mse_a': 0.0817, 'mse_d': 0.0813}
 
+criei embeddings usando qxakshat/all-MiniLM-L6-v2-128dim, o tempo foi:
+time:  36.5066 group  Development embedding qxakshat/all-MiniLM-L6-v2-128dim
+time:  36.6042 group  Test embedding qxakshat/all-MiniLM-L6-v2-128dim
+time:  110.191 group  Train embedding qxakshat/all-MiniLM-L6-v2-128dim
+
+usando esses args consegui isso
+python lstm.py -units 128 -dropout 0.25 -learning_rate 0.001 -optimizer 'adam' -batch_size 64 -epochs 50 -activation 'tanh' -activation_output 'tanh' -loss 'mse' -dir_data 'eval\data_iemocap_final\vggish\' -dir_data_text G:\Coisas_da_Facul\pratica_em_pesquisa_2025\data_iemocap\qxakshat\all-MiniLM-L6-v2-128dim\ -emb_model='vggish' -fusion concatenate -save 'no' -model_name 'vggish' -dimen 3
+{'ccc_v': 0.2307, 'ccc_a': 0.513, 'ccc_d': 0.5141, 'mse_v': 0.1853, 'mse_a': 0.079, 'mse_d': 0.0789}
+
